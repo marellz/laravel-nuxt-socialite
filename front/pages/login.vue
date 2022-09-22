@@ -18,6 +18,19 @@
           />
 
           <custom-button class="w-full">Submit</custom-button>
+
+          <hr class="my-10" />
+
+          <div class="space-y-3">
+            <custom-button
+              class="w-full"
+              v-for="provider in providers"
+              :key="provider.name"
+              @click="loginWith(provider.name)"
+            >
+              Login with {{ provider.label }}
+            </custom-button>
+          </div>
         </form>
       </div>
     </div>
@@ -32,19 +45,28 @@ export default {
         email: "dave@eventso.buzz",
         password: "secret123",
       },
+      providers: [
+        { label: "Google", name: "google" },
+        { label: "Facebook", name: "facebook" },
+        { label: "Github", name: "github" },
+      ],
     };
   },
   methods: {
     async login() {
       let api = process.env.API_URL;
       try {
-        const response = await this.$axios.post(`${api}/api/login`, this.user);
-
+        const response = await this.$axios.post(`${api}/api/login`, this.user, {
+          headers: {
+            Accept: "application/json",
+          },
+        });
         console.log(response);
       } catch (error) {
         console.log(error);
       }
     },
+    loginWith(provider) {},
   },
 };
 </script>

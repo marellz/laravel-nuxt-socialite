@@ -17,21 +17,20 @@
             v-model="user.password"
           />
 
-          <custom-button class="w-full">Submit</custom-button>
-
-          <hr class="my-10" />
-
-          <div class="space-y-3">
-            <custom-button
-              class="w-full"
-              v-for="provider in providers"
-              :key="provider.name"
-              @click="loginWith(provider.name)"
-            >
-              Login with {{ provider.label }}
-            </custom-button>
-          </div>
+          <custom-button class="w-full">Login</custom-button>
         </form>
+        <hr class="my-10" />
+
+        <div class="space-y-3">
+          <custom-button
+            class="w-full"
+            v-for="provider in providers"
+            :key="provider.name"
+            @click="loginWith(provider.name)"
+          >
+            Login with {{ provider.label }}
+          </custom-button>
+        </div>
       </div>
     </div>
   </div>
@@ -52,6 +51,18 @@ export default {
       ],
     };
   },
+  mounted() {
+    if (this.$route.query.provider) {
+      this.completeLoginWith(this.$route.query.provider);
+    }
+  },
+  watch: {
+    $route(from, to) {
+      if (to.query.provider) {
+        this.completeLoginWith(to.query.provider);
+      }
+    },
+  },
   methods: {
     async login() {
       let api = process.env.API_URL;
@@ -66,7 +77,56 @@ export default {
         console.log(error);
       }
     },
-    loginWith(provider) {},
+    async loginWith(provider) {
+      let api = process.env.API_URL;
+      try {
+        const { data } = await this.$axios.post(
+          `${api}/api/auth/redirect/${provider}`,
+          {},
+          {
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
+
+        let url = data.url;
+
+        if (url) {
+          window.location = url;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    async completeLoginWith(provider) {
+      let api = process.env.API_URL,
+        code = this.$route.query.code;
+      try {
+        const { data } = await this.$axios.post(
+          `${api}/api/auth/callback/${provider}`,
+          {
+            code,
+          },
+          {
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
+
+        let success = data.success;
+
+        if (success) {
+          alert("Login successful");
+        } else {
+          console.log(data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
   },
 };
 </script>

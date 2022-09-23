@@ -20,6 +20,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // auth
-Route::post('/login',[AuthController::class,'login']);
-Route::post('/register',[AuthController::class,'register']);
-Route::get('/get-token',[AuthController::class,'createToken']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::get('/get-token', [AuthController::class, 'createToken']);
+
+
+// Route::group(['middleware' => 'api'], function () {
+Route::post('/auth/redirect/{provider}', [AuthController::class, 'OAuthProvider']);
+Route::post('/auth/callback/{provider}', [AuthController::class, 'OAuthProviderCallback']);
+// });
